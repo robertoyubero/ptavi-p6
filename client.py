@@ -7,6 +7,7 @@ Programa cliente que abre un socket a un servidor
 import socket
 import sys
 
+
 class Cliente():
 
     IP_receptor = ''
@@ -15,8 +16,6 @@ class Cliente():
     puertoSIP_receptor = 0
 
     metodos_sip = ["INVITE", "ACK", "BYE"]
-
-
 
     def leer_entrada(self, texto_entrada):
         """ Extraido los datos por la entrada"""
@@ -31,7 +30,6 @@ class Cliente():
         except:
             print("Usage: python client.py method receiver@IP:SIPport")
 
-
     def get_peticion(self, tipo_peticion):
         """ Envío mi peticion: INVITE ó BYE """
         if tipo_peticion in self.metodos_sip:
@@ -39,7 +37,6 @@ class Cliente():
         else:
             peticion = "peticion de ???"
             print(tipo_peticion + " es un tipo de petición no aceptada")
-
 
 
 if __name__ == "__main__":
@@ -59,8 +56,7 @@ if __name__ == "__main__":
         dir_SIP = cliente.receptor + '@' + cliente.IP_receptor
         peticion = (peticion + ' sip:' + dir_SIP + ' SIP/2.0' + '\r\n')
         my_socket.send(bytes(peticion, 'utf-8'))
-        print("Enviado: " + peticion)
-
+        print("\nEnviado: " + peticion)
 
         #-------------PRIMERA RESPUESTA--------------------
         respuesta = my_socket.recv(1024)
@@ -74,22 +70,31 @@ if __name__ == "__main__":
             my_socket.close()
 
         else:
-            print('\nRecibido:')
+            print('Recibido:')
             print(respuesta)
 
-            #envio ACK
+            #------------envio ACK
             peticion_ACK = ('ACK sip:' + dir_SIP + ' SIP/2.0' + '\r\n')
             my_socket.send(bytes(peticion_ACK, 'utf-8'))
             print('Enviado: ' + peticion_ACK)
+            print('...Recibiendo paquetes\r\n')
 
             #espero a recibir el archivo
             respuesta = my_socket.recv(1024)
-            print('Recibido fichero con éxito')
+            print('Recibido: ' + respuesta.decode('utf8') + '\n')
+
+            #------------envio BYE
+            peticion_BYE = ('BYE sip:' + dir_SIP + ' SIP/2.0' + '\r\n')
+            my_socket.send(bytes(peticion_BYE, 'utf-8'))
+            print('Enviado: ' + peticion_BYE)
+
+            respuesta = my_socket.recv(1024)
+            print("Recibido: " + respuesta.decode('utf-8'))
+            print("Cerramos la sesion SIP\n")
             my_socket.close()
 
     else:
         raise Exception("\nUsage: python server.py IP port audio_file")
-
 
     # Cerramos todo
     my_socket.close()
