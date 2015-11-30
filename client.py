@@ -35,8 +35,7 @@ class Cliente():
         if tipo_peticion in self.metodos_sip:
             return tipo_peticion
         else:
-            peticion = "peticion de ???"
-            print(tipo_peticion + " es un tipo de petición no aceptada")
+            print("Tipo de petición no aceptada")
 
 
 if __name__ == "__main__":
