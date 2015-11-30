@@ -7,7 +7,7 @@ import socketserver
 import sys
 import os
 
-
+#comprobamos la entrada por teclado
 try:
 
     IP_DESTINO = sys.argv[1]
