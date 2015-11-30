@@ -13,13 +13,6 @@ try:
     IP_DESTINO = sys.argv[1]
     PUERTO_DEST = sys.argv[2]
     FICHERO = sys.argv[3]
-"""
-a
-a
-a
-a
-"""
-
 
 except IndexError:
     print("Usage: python server.py IP port audio_file")
