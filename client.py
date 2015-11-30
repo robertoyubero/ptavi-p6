@@ -54,45 +54,45 @@ if __name__ == "__main__":
         peticion = cliente.peticion
         #formo la peticion SIP
         dir_SIP = cliente.receptor + '@' + cliente.IP_receptor
-        peticion = (peticion + ' sip:' + dir_SIP + ' SIP/2.0' + '\r\n')
-        my_socket.send(bytes(peticion, 'utf-8'))
-        print("\nEnviado: " + peticion)
 
-        #-------------PRIMERA RESPUESTA--------------------
-        respuesta = my_socket.recv(1024)
-        respuesta = respuesta.decode('utf-8')
-        codigo = int(respuesta.split('SIP/2.0 ')[-1][0:3])
+        if peticion == "INVITE":
+            #envio INVITE
+            peticion = (peticion + ' sip:' + dir_SIP + ' SIP/2.0' + '\r\n')
+            my_socket.send(bytes(peticion, 'utf-8'))
+            print("\nEnviado: " + peticion)
 
-        if codigo != 200:
-            #mi peticion ha sido denegada
-            print(respuesta)
-            # Cerramos conexion
+            #espero a recibir la aceptacion del INVITE
+            respuesta = my_socket.recv(1024)
+            respuesta = respuesta.decode('utf-8')
+            codigo = int(respuesta.split('SIP/2.0 ')[-1][0:3])
+
+            if codigo != 200:
+                #mi peticion ha sido denegada
+                print(respuesta)
+                # Cerramos conexion
+                my_socket.close()
+            else:
+                print('Recibido:')
+                print(respuesta)
+                #envio ACK para comenzar a recibir RTP
+                peticion_ACK = ('ACK sip:' + dir_SIP + ' SIP/2.0' + '\r\n')
+                my_socket.send(bytes(peticion_ACK, 'utf-8'))
+                print('Enviado: ' + peticion_ACK)
             my_socket.close()
 
-        else:
-            print('Recibido:')
-            print(respuesta)
-
-            #------------envio ACK
-            peticion_ACK = ('ACK sip:' + dir_SIP + ' SIP/2.0' + '\r\n')
-            my_socket.send(bytes(peticion_ACK, 'utf-8'))
-            print('Enviado: ' + peticion_ACK)
-            print('...Recibiendo paquetes\r\n')
-
-            #espero a recibir el archivo
-            respuesta = my_socket.recv(1024)
-            print('Recibido: ' + respuesta.decode('utf8') + '\n')
-
-            #------------envio BYE
-            peticion_BYE = ('BYE sip:' + dir_SIP + ' SIP/2.0' + '\r\n')
+        elif peticion == "BYE":
+            #envio BYE
+            peticion_BYE = (peticion + ' sip:' + dir_SIP + ' SIP/2.0' + '\r\n')
             my_socket.send(bytes(peticion_BYE, 'utf-8'))
             print('Enviado: ' + peticion_BYE)
-
+            #espero la respuesta...
             respuesta = my_socket.recv(1024)
             print("Recibido: " + respuesta.decode('utf-8'))
             print("Cerramos la sesion SIP\n")
             my_socket.close()
-
+        else:
+            print('Intento de envio de: ' + peticion)
+            my_socket.close()
     else:
         raise Exception("\nUsage: python server.py IP port audio_file")
 
